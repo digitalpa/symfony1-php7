@@ -14,7 +14,7 @@
  * @package    symfony
  * @subpackage validator
  * @author     Fabien Potencier <fabien.potencier@symfony-project.com>
- * @version    SVN: $Id$
+ * @version    SVN: $Id: sfValidatorFile.class.php 32836 2011-07-27 07:15:58Z fabien $
  */
 class sfValidatorFile extends sfValidatorBase
 {
@@ -75,7 +75,7 @@ class sfValidatorFile extends sfValidatorBase
     $this->addOption('validated_file_class', 'sfValidatedFile');
     $this->addOption('path', null);
 
-    $this->addMessage('max_size', 'File is too large (maximum is %max_size% kilobytes).');
+    $this->addMessage('max_size', 'File is too large (maximum is %max_size% bytes).');
     $this->addMessage('mime_types', 'Invalid mime type (%mime_type%).');
     $this->addMessage('partial', 'The uploaded file was only partially uploaded.');
     $this->addMessage('no_tmp_dir', 'Missing a temporary folder.');
@@ -126,20 +126,14 @@ class sfValidatorFile extends sfValidatorBase
     switch ($value['error'])
     {
       case UPLOAD_ERR_INI_SIZE:
-        $max = $this->getMaxFilesize();
+        $max = ini_get('upload_max_filesize');
         if ($this->getOption('max_size'))
         {
           $max = min($max, $this->getOption('max_size'));
         }
-        throw new sfValidatorError($this, 'max_size', array(
-          'max_size' => round($max / 1024, 0), 
-          'size' => (int) $value['size']
-        ));
+        throw new sfValidatorError($this, 'max_size', array('max_size' => $max, 'size' => (int) $value['size']));
       case UPLOAD_ERR_FORM_SIZE:
-        throw new sfValidatorError($this, 'max_size', array(
-          'max_size' => 0,
-          'size' => (int) $value['size']
-        ));
+        throw new sfValidatorError($this, 'max_size', array('max_size' => 0, 'size' => (int) $value['size']));
       case UPLOAD_ERR_PARTIAL:
         throw new sfValidatorError($this, 'partial');
       case UPLOAD_ERR_NO_TMP_DIR:
@@ -153,10 +147,7 @@ class sfValidatorFile extends sfValidatorBase
     // check file size
     if ($this->hasOption('max_size') && $this->getOption('max_size') < (int) $value['size'])
     {
-      throw new sfValidatorError($this, 'max_size', array(
-        'max_size' => round($this->getOption('max_size') / 1024, 0), 
-        'size' => (int) $value['size']
-      ));
+      throw new sfValidatorError($this, 'max_size', array('max_size' => $this->getOption('max_size'), 'size' => (int) $value['size']));
     }
 
     $mimeType = $this->getMimeType((string) $value['tmp_name'], (string) $value['type']);
@@ -190,14 +181,48 @@ class sfValidatorFile extends sfValidatorBase
    *
    * @return string The mime type of the file (fallback is returned if not guessable)
    */
-  protected function getMimeType($file, $fallback)
-  {
-    foreach ($this->getOption('mime_type_guessers') as $method)
-    {
+//    protected function getMimeType($file, $fallback) {
+//        foreach ($this->getOption('mime_type_guessers') as $method) {
+//            $type = call_user_func($method, $file);
+//
+//            if (null !== $type && $type !== false) {
+//                return strtolower($type);
+//            }
+//        }
+//
+//        return strtolower($fallback);
+//    }
+
+    protected function getMimeType($file, $fallback) {
+        $arrayZips = array("application/zip",
+            "application/x-zip",
+            "application/x-zip-compressed");
+        
+        $officeTypes = array(
+            "application/vnd.ms-word.document.macroEnabled.12",
+            "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+            "application/vnd.openxmlformats-officedocument.wordprocessingml.template",
+            "application/vnd.ms-powerpoint.template.macroEnabled.12",
+            "application/vnd.openxmlformats-officedocument.presentationml.template",
+            "application/vnd.ms-powerpoint.addin.macroEnabled.12",
+            "application/vnd.ms-powerpoint.slideshow.macroEnabled.12",
+            "application/vnd.openxmlformats-officedocument.presentationml.slideshow",
+            "application/vnd.ms-powerpoint.presentation.macroEnabled.12",
+            "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+            "application/vnd.ms-excel.addin.macroEnabled.12",
+            "application/vnd.ms-excel.sheet.binary.macroEnabled.12",
+            "application/vnd.ms-excel.sheet.macroEnabled.12",
+            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            "application/vnd.ms-excel.template.macroEnabled.12",
+            "application/vnd.openxmlformats-officedocument.spreadsheetml.template");
+
+        foreach ($this->getOption('mime_type_guessers') as $method) {
       $type = call_user_func($method, $file);
 
-      if (null !== $type && $type !== false)
-      {
+            if (null !== $type && $type !== false) {
+                if (in_array($type, $arrayZips) && in_array($fallback, $officeTypes)) {
+                    return $fallback;
+                }
         return strtolower($type);
       }
     }
@@ -304,33 +329,5 @@ class sfValidatorFile extends sfValidatorBase
       (!is_array($value))
         ||
       (is_array($value) && isset($value['error']) && UPLOAD_ERR_NO_FILE === $value['error']);
-  }
-
-  /**
-   * Returns the maximum size of an uploaded file as configured in php.ini
-   *
-   * @return type The maximum size of an uploaded file in bytes
-   */
-  protected function getMaxFilesize()
-  {
-    $max = trim(ini_get('upload_max_filesize'));
-
-    if ('' === $max)
-    {
-      return PHP_INT_MAX;
-    }
-
-    $value = (int) $max;
-    switch (strtolower(substr($max, -1)))
-    {
-      case 'g':
-        $value *= 1024;
-      case 'm':
-        $value *= 1024;
-      case 'k':
-        $value *= 1024;
-    }
-
-    return (integer) $value;
   }
 }
