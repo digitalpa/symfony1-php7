@@ -322,7 +322,7 @@ class sfWebRequest extends sfRequest
 
     if (!$this->getOption('no_script_name'))
     {
-      $scriptName = $this->getScriptName();
+      $scriptName = sfConfig::get('sf_script_name_alias',$this->getScriptName());
       $prefix = null === $prefix ? $scriptName : $prefix.'/'.basename($scriptName);
     }
 
