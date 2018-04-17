@@ -322,7 +322,7 @@ class sfWebRequest extends sfRequest
 
     if (!$this->getOption('no_script_name'))
     {
-      $scriptName = $this->getScriptName();
+      $scriptName = sfConfig::get('sf_script_name_alias',$this->getScriptName());
       $prefix = null === $prefix ? $scriptName : $prefix.'/'.basename($scriptName);
     }
 
@@ -648,6 +648,10 @@ class sfWebRequest extends sfRequest
       if (!($this->relativeUrlRoot = $this->getOption('relative_url_root')))
       {
         $this->relativeUrlRoot = preg_replace('#/[^/]+\.php5?$#', '', $this->getScriptName());
+      }
+      else
+      {
+        $this->relativeUrlRoot = $this->options['relative_url_root'];
       }
     }
 
