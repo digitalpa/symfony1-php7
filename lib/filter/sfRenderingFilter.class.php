@@ -34,7 +34,10 @@ class sfRenderingFilter extends sfFilter
 
     // get response object
     $response = $this->context->getResponse();
-
+    if(!sfConfig::get('app_disable_xuacompatible',0)) {
+        $response->setHttpHeader('X-UA-Compatible','IE=11 , IE=10 , IE=9 , IE=8 , IE=edge');
+    }
+    $response->setHttpHeader('P3P','CP="CAO PSA OUR"');
     // hack to rethrow sfForm and|or sfFormField __toString() exceptions (see sfForm and sfFormField)
     if (sfForm::hasToStringException())
     {

@@ -59,4 +59,35 @@ abstract class sfActions extends sfAction
     // run action
     return $this->$actionToRun($request);
   }
+
+    public function getPresentation($viewName = sfView::SUCCESS, $hasLayout = false)
+    {
+        if (!$hasLayout) {
+            $this->setLayout(false);
+        }
+
+        $view = $this->getController()->getView($this->getContext()->getModuleName(), $this->getContext()->getActionName(), $viewName);
+
+        $view->execute();
+        $view->getAttributeHolder()->add($this->getVarHolder()->getAll());
+        return $view->render();
+    }
+
+    public function rejectNotAjaxRequest(sfWebRequest $request)
+    {
+        if(!$request->isXmlHttpRequest())
+        {
+            throw new Requests_Exception_HTTP_400('Connessioni non Ajax non permesse!');
+        }
+    }
+
+    public function sendJsonResponse(array $data)
+    {
+        $jsonData = json_encode($data);
+
+        $this->getResponse()->setContentType('application/json');
+        sfConfig::set('sf_web_debug', false);
+        return $this->renderText($jsonData);
+    }
+
 }

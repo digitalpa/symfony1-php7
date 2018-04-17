@@ -261,7 +261,7 @@ EOF;
 
     if ($renderer = $field->getRenderer())
     {
-      $html = sprintf("$html ? call_user_func_array(%s, array_merge(array(%s), %s)) : '&nbsp;'", $this->asPhp($renderer), $html, $this->asPhp($field->getRendererArguments()));
+      $html = sprintf("$html !== null ? call_user_func_array(%s, array_merge(array(%s), %s)) : '&nbsp;'", $this->asPhp($renderer), $html, $this->asPhp($field->getRendererArguments()));
     }
     else if ($field->isComponent())
     {
