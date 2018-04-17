@@ -73,10 +73,14 @@ class sfSessionStorage extends sfStorage
 
     session_name($sessionName);
 
-    if (!(boolean) ini_get('session.use_cookies') && $sessionId = $this->options['session_id'])
-    {
-      session_id($sessionId);
-    }
+        $sessionData = $this->getSessionData();
+
+        if ($sessionData) {
+            session_id($sessionData['session_id']);
+            session_name($sessionData['session_name']);
+        } elseif (!(boolean)ini_get('session.use_cookies') && $sessionId = $this->options['session_id']) {
+            session_id($sessionId);
+        }
 
     $lifetime = $this->options['session_cookie_lifetime'];
     $path     = $this->options['session_cookie_path'];
@@ -97,18 +101,42 @@ class sfSessionStorage extends sfStorage
     }
   }
 
-  /**
-   * Reads data from this storage.
-   *
-   * The preferred format for a key is directory style so naming conflicts can be avoided.
-   *
-   * @param  string $key  A unique key identifying your data
-   *
-   * @return mixed Data associated with the key
-   */
-  public function read($key)
-  {
-    $retval = null;
+    private function getSessionData()
+    {
+        /** @var sfRequest $request */
+        $request = sfContext::getInstance()->getRequest();
+
+        if($request->getHttpHeader('session_token'))
+        {
+            return array(
+                'session_id' => $request->getHttpHeader('session_token'),
+                'session_name' => session_name($sessionName)
+            );
+        }
+        elseif ($request->hasParameter('session_id') && $request->hasParameter('session_name'))
+        {
+            return array(
+                'session_id' => $request->getParameter('session_id'),
+                'session_name' => $request->getParameter('session_name')
+            );
+        }
+
+        return null;
+    }
+
+
+    /**
+     * Reads data from this storage.
+     *
+     * The preferred format for a key is directory style so naming conflicts can be avoided.
+     *
+     * @param  string $key A unique key identifying your data
+     *
+     * @return mixed Data associated with the key
+     */
+    public function read($key)
+    {
+        $retval = null;
 
     if (isset($_SESSION[$key]))
     {
