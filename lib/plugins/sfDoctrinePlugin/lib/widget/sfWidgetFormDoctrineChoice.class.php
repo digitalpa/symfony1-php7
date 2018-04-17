@@ -114,7 +114,7 @@ class sfWidgetFormDoctrineChoice extends sfWidgetFormChoice
 
     foreach ($objects as $object)
     {
-      $choices[$object->$keyMethod()] = $object->$method();
+      $choices[$object->$keyMethod()] = __($object->$method());
     }
 
     return $choices;
