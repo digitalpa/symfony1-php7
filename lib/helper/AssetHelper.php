@@ -73,9 +73,12 @@ function auto_discovery_link_tag($type = 'rss', $url = '', $tag_options = array(
  * @return string file path to the JavaScript file
  * @see    javascript_include_tag
  */
-function javascript_path($source, $absolute = false)
-{
-  return _compute_public_path($source, sfConfig::get('sf_web_js_dir_name', 'js'), 'js', $absolute);
+function javascript_path($source, $absolute = false) {
+    if (file_exists(sfConfig::get('sf_web_dir') . sfConfig::get('sf_web_js_dir_name', 'js') . '/' . sfConfig::get('app_theme_name', 'default_theme') . '/' . $source))
+        $path = _compute_public_path($source, sfConfig::get('sf_web_js_dir_name', 'js') . '/' . sfConfig::get('app_theme_name', 'default_theme'), 'js', $absolute);
+    else
+        $path = _compute_public_path($source, sfConfig::get('sf_web_js_dir_name', 'js'), 'js', $absolute);
+    return $path;
 }
 
 /**
@@ -127,6 +130,10 @@ function javascript_include_tag()
       unset($sourceOptions['raw_name']);
     }
 
+
+    $char = (strpos($source,'?') === false) ? '?' : '&';
+    $source .= $char.sfConfig::get('app_js_version',time());
+
     $options = array_merge(array('type' => 'text/javascript', 'src' => $source), $sourceOptions);
     $tag = content_tag('script', '', $options);
 
@@ -161,8 +168,11 @@ function javascript_include_tag()
  * @return string file path to the stylesheet file
  * @see    stylesheet_tag
  */
-function stylesheet_path($source, $absolute = false)
-{
+function stylesheet_path($source, $absolute = false) {
+//die(sfConfig::get('sf_web_dir') . sfConfig::get('sf_web_css_dir_name', 'css') . '/' . sfConfig::get('app_theme_name', 'default') . '/' . $source);
+    if (file_exists(sfConfig::get('sf_web_dir') . sfConfig::get('sf_web_css_dir_name', 'css') . '/' . sfConfig::get('app_theme_name', 'default_theme') . '/' . $source))
+        return _compute_public_path($source, sfConfig::get('sf_web_css_dir_name', 'css') . '/' . sfConfig::get('app_theme_name', 'default_theme'), 'css', $absolute);
+    else
   return _compute_public_path($source, sfConfig::get('sf_web_css_dir_name', 'css'), 'css', $absolute);
 }
 
