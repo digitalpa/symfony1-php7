@@ -284,7 +284,10 @@ class sfUser implements ArrayAccess
   {
     return $this->attributeHolder->set($name, $value, $ns);
   }
-
+    public function removeAttribute($name, $default = null, $ns = null)
+    {
+        $this->getAttributeHolder()->remove($name, $default, $ns);
+    }
   /**
    * Executes the shutdown procedure.
    */
@@ -336,6 +339,14 @@ class sfUser implements ArrayAccess
       throw new sfException(sprintf('Call to undefined method %s::%s.', get_class($this), $method));
     }
 
-    return $event->getReturnValue();
-  }
+        return $event->getReturnValue();
+    }
+
+    public function getBaseInformation(){
+        return [
+            'id' => $this->getId(),
+            'full_name' => $this->getFullName(),
+            'username' => $this->getUsername()
+        ];
+    }
 }
