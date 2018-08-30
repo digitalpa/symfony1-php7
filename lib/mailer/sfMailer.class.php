@@ -57,7 +57,7 @@ class sfMailer extends Swift_Mailer
   {
     // options
     $options = array_merge(array(
-      'charset' => 'UTF-8',
+      'charset' => 'utf-8',
       'logging' => false,
       'delivery_strategy' => self::REALTIME,
       'transport' => array(
