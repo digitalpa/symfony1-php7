@@ -53,7 +53,8 @@ class sfMessageSource_XLIFF extends sfMessageSource_File
     libxml_use_internal_errors(true);
     if (!$xml = simplexml_load_file($filename))
     {
-      return false;
+        $res = false;
+      return $res;
     }
     libxml_use_internal_errors(false);
 
