@@ -445,7 +445,7 @@ class sfDateFormat
    */
   protected function getYear($date, $pattern = 'yyyy')
   {
-    $year = $date['year'];
+    $year = $date['year'] ?? '';
     switch ($pattern)
     {
       case 'yy':
@@ -473,7 +473,7 @@ class sfDateFormat
    */
   protected function getMon($date, $pattern = 'M')
   {
-    $month = $date['mon'];
+    $month = $date['mon'] ?? '';
 
     switch ($pattern)
     {
@@ -540,7 +540,7 @@ class sfDateFormat
    */
   protected function getMday($date, $pattern = 'd')
   {
-    $day = $date['mday'];
+    $day = $date['mday'] ?? '';
 
     switch ($pattern)
     {
@@ -583,7 +583,7 @@ class sfDateFormat
    */
   protected function getHours($date, $pattern = 'H')
   {
-    $hour = $date['hours'];
+    $hour = $date['hours'] ?? '';
 
     switch ($pattern)
     {
@@ -647,7 +647,7 @@ class sfDateFormat
    */
   protected function getMinutes($date, $pattern = 'm')
   {
-    $minutes = $date['minutes'];
+    $minutes = $date['minutes'] ?? '';
 
     switch ($pattern)
     {
