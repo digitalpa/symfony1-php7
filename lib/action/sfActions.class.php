@@ -77,7 +77,8 @@ abstract class sfActions extends sfAction
     {
         if(!$request->isXmlHttpRequest())
         {
-            throw new Requests_Exception_HTTP_400('Connessioni non Ajax non permesse!');
+            $class_name = sfConfig::get('app_not_ajax_exception','Requests_Exception_HTTP_400');
+            throw new $class_name('Connessioni non Ajax non permesse!');
         }
     }
 
